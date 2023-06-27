@@ -1,61 +1,65 @@
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3001;
+const supabase = require('@supabase/supabase-js');
+const converter = require('jstoxml');
+const cors = require('cors');
+const _supabase = 
+  supabase.createClient(
+    "https://baylgzlbiofnwokwjirt.supabase.co", 
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJheWxnemxiaW9mbndva3dqaXJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1Nzg1MDYsImV4cCI6MjAwMjE1NDUwNn0.tFYGG6jEyJ6kBAlrpZ_OYIO4KH1K_Kz3rDqwuo3VXPw");
 
-app.get("/", (req, res) => res.type('html').send(html));
+let agents = [];
+let deals = [];
+let annualDeals = [];
+let monthDeals = [];
 
 const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;
 
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render!</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    </script>
-    <style>
-      @import url("https://p.typekit.net/p.css?s=1&k=vnd5zic&ht=tk&f=39475.39476.39477.39478.39479.39480.39481.39482&a=18673890&app=typekit&e=css");
-      @font-face {
-        font-family: "neo-sans";
-        src: url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("opentype");
-        font-style: normal;
-        font-weight: 700;
-      }
-      html {
-        font-family: neo-sans;
-        font-weight: 700;
-        font-size: calc(62rem / 16);
-      }
-      body {
-        background: white;
-      }
-      section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-  </head>
-  <body>
-    <section>
-      Hello from Render!
-    </section>
-  </body>
-</html>
-`
+app.use(cors());
+app.get("/", async (req, res) => res.send(await getData()));
+
+async function getData() {
+  let { year, month } = (await _supabase.from('dashboard').select('year,month').limit(1).single(1)).data;
+  await getAgents();
+  await getDeals(year, month);
+
+  const xml = converter.toXML({deals: monthDeals});
+  return xml;
+}
+
+async function getAgents() {
+  agents = (await _supabase.from('agents').select('name')).data;
+}
+
+async function getDeals(year, month) {
+  deals = (await _supabase.from('deals').select('agents(name),value,month').eq('year', year)).data;
+  monthDeals = [];
+  annualDeals = [];
+  md = [];
+  ad = [];
+  agents.forEach(a => {
+    const ad = deals.filter(d => d.agents.name === a.name);
+    let yt = 0;
+    let mt = 0;
+
+    if (ad.length > 0) {
+      ad.forEach(d => {
+        yt += d.value;
+
+        if (d.month === month) {
+          mt += d.value;
+        }
+      });
+    }
+
+    annualDeals.push({ name: a.name, total: yt });
+    monthDeals.push({ name: a.name, total: mt });
+  });
+
+  monthDeals.sort((a,b) => b.total - a.total);
+  annualDeals.sort((a,b) => b.total - a.total);
+}
