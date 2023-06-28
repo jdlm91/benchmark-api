@@ -4,9 +4,9 @@ const port = process.env.PORT || 3001;
 const supabase = require('@supabase/supabase-js');
 const converter = require('jstoxml');
 const cors = require('cors');
-const _supabase = 
+const _supabase =
   supabase.createClient(
-    "https://baylgzlbiofnwokwjirt.supabase.co", 
+    "https://baylgzlbiofnwokwjirt.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJheWxnemxiaW9mbndva3dqaXJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1Nzg1MDYsImV4cCI6MjAwMjE1NDUwNn0.tFYGG6jEyJ6kBAlrpZ_OYIO4KH1K_Kz3rDqwuo3VXPw");
 
 let agents = [];
@@ -27,7 +27,7 @@ async function getData() {
   await getAgents();
   await getDeals(year, month);
 
-  const xml = converter.toXML({deals: monthDeals});
+  const xml = converter.toXML({ deals: { monthly: monthDeals, annual: annualDeals, year: year, month: month } });
   return xml;
 }
 
@@ -60,6 +60,6 @@ async function getDeals(year, month) {
     monthDeals.push({ name: a.name, total: mt });
   });
 
-  monthDeals.sort((a,b) => b.total - a.total);
-  annualDeals.sort((a,b) => b.total - a.total);
+  monthDeals.sort((a, b) => b.total - a.total);
+  annualDeals.sort((a, b) => b.total - a.total);
 }
