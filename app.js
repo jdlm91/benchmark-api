@@ -6,8 +6,8 @@ const converter = require('jstoxml');
 const cors = require('cors');
 const _supabase =
   supabase.createClient(
-    "https://baylgzlbiofnwokwjirt.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJheWxnemxiaW9mbndva3dqaXJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1Nzg1MDYsImV4cCI6MjAwMjE1NDUwNn0.tFYGG6jEyJ6kBAlrpZ_OYIO4KH1K_Kz3rDqwuo3VXPw");
+    "SUPABASE_URL=https://zahmyhvievhhtizhdryx.supabase.co" +
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphaG15aHZpZXZoaHRpemhkcnl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODgyMjQ3NDcsImV4cCI6MjAwMzgwMDc0N30.u8vi_z8XKfXRjnn9SYMPM4SwbfqhMKApial-Y5Zwreo",);
 
 let agents = [];
 let deals = [];
