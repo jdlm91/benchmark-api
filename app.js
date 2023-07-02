@@ -23,7 +23,7 @@ app.use(cors());
 app.get("/", async (req, res) => res.send(await getData()));
 
 async function getData() {
-  let { year, month } = (await _supabase.from('dashboard').select('year,month').limit(1).single(1)).data;
+  let { year, month } = (await _supabase.from('dashboard').select('year,month').limit(1).single()).data;
   await getAgents();
   await getDeals(year, month);
 
