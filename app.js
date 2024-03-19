@@ -1,20 +1,22 @@
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3001;
-const supabase = require('@supabase/supabase-js');
-const converter = require('jstoxml');
-const cors = require('cors');
-const _supabase =
-  supabase.createClient(
-    "https://zahmyhvievhhtizhdryx.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphaG15aHZpZXZoaHRpemhkcnl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODgyMjQ3NDcsImV4cCI6MjAwMzgwMDc0N30.u8vi_z8XKfXRjnn9SYMPM4SwbfqhMKApial-Y5Zwreo");
+const supabase = require("@supabase/supabase-js");
+const converter = require("jstoxml");
+const cors = require("cors");
+const _supabase = supabase.createClient(
+  "https://zahmyhvievhhtizhdryx.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphaG15aHZpZXZoaHRpemhkcnl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODgyMjQ3NDcsImV4cCI6MjAwMzgwMDc0N30.u8vi_z8XKfXRjnn9SYMPM4SwbfqhMKApial-Y5Zwreo"
+);
 
 let agents = [];
 let deals = [];
 let annualDeals = [];
 let monthDeals = [];
 
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+const server = app.listen(port, () =>
+  console.log(`Example app listening on port ${port}!`)
+);
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;
@@ -23,16 +25,25 @@ app.use(cors());
 app.get("/", async (req, res) => res.send(await getData()));
 
 async function getData() {
-  let { year, month } = (await _supabase.from('dashboard').select('year,month').limit(1).single()).data;
+  let { year, month } = (
+    await _supabase.from("dashboard").select("year,month").limit(1).single()
+  ).data;
   await getAgents();
   await getDeals(year, month);
 
-  const xml = converter.toXML({ deals: { monthly: monthDeals, annual: annualDeals, year: year, month: month } });
+  const xml = converter.toXML({
+    deals: {
+      monthly: monthDeals,
+      annual: annualDeals,
+      year: year,
+      month: month,
+    },
+  });
   return xml;
 }
 
 async function getAgents() {
-  agents = (await _supabase.from('agents').select('name')).data;
+  agents = (await _supabase.from("agents").select("name,is_active")).data;
 }
 
 async function getDeals(year, month) {
