@@ -36,28 +36,37 @@ async function getAgents() {
 }
 
 async function getDeals(year, month) {
-  deals = (await _supabase.from('deals').select('agents(name),value,month').eq('year', year)).data;
+  deals = (
+    await _supabase
+      .from("deals")
+      .select("agents(name,is_active),value,month")
+      .eq("year", year)
+  ).data;
   monthDeals = [];
   annualDeals = [];
   md = [];
   ad = [];
-  agents.forEach(a => {
-    const ad = deals.filter(d => d.agents.name === a.name);
+
+  agents.forEach((a) => {
+    const ad = deals.filter((d) => d.agents.name === a.name);
     let yt = 0;
     let mt = 0;
 
-    if (ad.length > 0) {
-      ad.forEach(d => {
-        yt += d.value;
+    if (a.is_active) {
+      if (ad.length > 0) {
+        ad.forEach((d) => {
+          yt += d.value;
 
-        if (d.month === month) {
-          mt += d.value;
-        }
-      });
+          if (d.month === month) {
+            mt += d.value;
+          }
+        });
+      }
+
+      annualDeals.push({ name: a.name, total: yt });
+      monthDeals.push({ name: a.name, total: mt });
+
     }
-
-    annualDeals.push({ name: a.name, total: yt });
-    monthDeals.push({ name: a.name, total: mt });
   });
 
   monthDeals.sort((a, b) => b.total - a.total);
